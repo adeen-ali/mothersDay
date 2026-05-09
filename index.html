@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Special Message For Mom ❤️</title>
+    <title>A Message For Mom ❤️</title>
     <style>
         * { box-sizing: border-box; }
         body { 
@@ -14,71 +14,96 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            background: linear-gradient(135deg, #fff0f5, #ffe4e1); 
+            background: linear-gradient(135deg, #fff0f5, #ffe4e1, #ffdad9); 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             text-align: center;
-            overflow-x: hidden;
+            overflow: hidden;
+            position: relative;
         }
         .container {
-            background: rgba(255, 255, 255, 0.92);
-            padding: 30px 20px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(214, 48, 49, 0.15);
-            max-width: 450px;
+            background: rgba(255, 255, 255, 0.94);
+            padding: 35px 25px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(214, 48, 49, 0.18);
+            max-width: 440px;
             width: 100%;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 182, 193, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 182, 193, 0.6);
+            z-index: 10;
+            transform: scale(0.98);
+            animation: containerSpawn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         h1 { color: #d63031; font-size: 26px; margin-bottom: 10px; font-weight: 700; }
-        p { color: #666; font-size: 16px; line-height: 1.6; }
+        p { color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 0; }
+        
+        /* Gift Stage Animations */
         .gift-box { 
-            font-size: 110px; 
+            font-size: 120px; 
             cursor: pointer; 
             margin: 40px 0;
             display: inline-block;
-            transition: transform 0.3s ease;
-            animation: bounce 2s infinite;
+            user-select: none;
+            animation: bounce 2s infinite ease-in-out;
         }
-        .gift-box:hover { transform: scale(1.1); }
-        #card { display: none; opacity: 0; transition: opacity 1.2s ease; }
-        .heartfelt-text {
-            font-size: 17px;
-            color: #4a4a4a;
-            line-height: 1.8;
-            text-align: left;
-            margin-top: 20px;
-            background: #fff8f8;
-            padding: 25px 20px;
-            border-radius: 18px;
-            border-top: 4px solid #ff6b81;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
+        
+        /* Card Reveal Stage */
+        #card { display: none; opacity: 0; transform: translateY(20px); transition: all 1.2s cubic-bezier(0.075, 0.82, 0.165, 1); }
         .bold-heading {
-            font-size: 22px;
+            font-size: 24px;
             color: #d63031;
             text-align: center;
             font-weight: bold;
             margin-bottom: 15px;
             display: block;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
         }
+        .heartfelt-text {
+            font-size: 17px;
+            color: #333;
+            line-height: 1.9;
+            text-align: left;
+            margin-top: 20px;
+            background: linear-gradient(to bottom, #fff8f8, #ffffff);
+            padding: 25px 22px;
+            border-radius: 20px;
+            border-left: 5px solid #ff6b81;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+        /* Particles */
+        .heart-particle {
+            position: absolute;
+            color: #ff4d6d;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1;
+            bottom: -50px;
+            animation: floatUp 4s linear forwards;
+        }
+
+        /* Keyframes */
+        @keyframes containerSpawn { to { transform: scale(1); } }
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-15px); }
-            60% { transform: translateY(-7px); }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-105vh) translateX(var(--x-drift)) rotate(var(--rot)); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- FIRST STAGE: THE GIFT BOX -->
+        <!-- FRONT PAGE -->
         <div id="envelope-stage">
             <h1>Tap to open your surprise! ✨</h1>
             <p>I made something special just for you, Mom.</p>
             <div class="gift-box" onclick="revealSurprise()">🎁</div>
         </div>
 
-        <!-- SECOND STAGE: YOUR CUSTOM MESSAGE -->
+        <!-- REVEALED LETTER -->
         <div id="card">
             <span class="bold-heading">Happy Mother’s Day ❤️</span>
             <div class="heartfelt-text">
@@ -88,24 +113,45 @@
         </div>
     </div>
 
-    <!-- Background music loader -->
-    <audio id="bg-music" src="music.mp3" loop></audio>
+    <!-- Dual Audio Engine (Ensures maximum mobile compatibility) -->
+    <audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
 
     <script>
-        function revealSurprise() {
-            // Start the music file
-            var audio = document.getElementById('bg-music');
-            audio.play().catch(function(error) {
-                console.log("Audio block bypass log:", error);
-            });
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            heart.innerHTML = ['❤️','🌸','💖','✨','💝'][Math.floor(Math.random() * 5)];
+            
+            // Random styling for authentic particle variance
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.setProperty('--x-drift', (Math.random() * 200 - 100) + 'px');
+            heart.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+            heart.style.fontSize = (Math.random() * 20 + 16) + 'px';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
 
-            // Transition screens
+        function revealSurprise() {
+            // Attempt strict mobile media injection
+            var audio = document.getElementById('bg-music');
+            audio.play().catch(err => console.log("Audio waiting for system route..."));
+
+            // Visual layout transitions
             document.getElementById('envelope-stage').style.display = 'none';
             var card = document.getElementById('card');
             card.style.display = 'block';
-            setTimeout(function() {
+            setTimeout(() => {
                 card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
             }, 50);
+
+            // Trigger premium particle burst engine
+            for(let i=0; i<30; i++) {
+                setTimeout(createHeart, i * 150);
+            }
+            setInterval(createHeart, 400);
         }
     </script>
 </body>
